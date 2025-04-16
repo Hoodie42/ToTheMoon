@@ -3,8 +3,7 @@ using System.Collections;
 
 public class SkyBehaviour : MonoBehaviour {
 
-	private float speed = 0.15f;
-	private bool astarted;
+	private float speed = 15f;
 	private bool started;
 	private bool inAir;
 	private bool dead;
@@ -12,7 +11,6 @@ public class SkyBehaviour : MonoBehaviour {
 	private float timer;
 	
 	public void spawn() {
-		astarted = false;
 		started = false;
 		dead = false;
 		posY = 0f;
@@ -33,9 +31,9 @@ public class SkyBehaviour : MonoBehaviour {
 		
 		//Anim
 		if (started) {
-			if (timer > 0.0f) timer -= 0.01f;
+			if (timer > 0.0f) timer -= 1f * Time.deltaTime;
 			else if (!dead) {
-				posY -= speed;
+				posY -= speed * Time.deltaTime;
 				if (posY < -47f) posY = -47f;
 			}
 		}

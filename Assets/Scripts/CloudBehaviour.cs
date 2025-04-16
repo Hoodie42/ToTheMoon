@@ -22,7 +22,7 @@ public class CloudBehaviour : MonoBehaviour {
 		stop = GameObject.Find("PlayerShip").GetComponent<PlayerShip>().isDead();
 		reset = GameObject.Find("PlayerShip").GetComponent<PlayerShip>().getRespawnStuff();
 
-		if (timer > 0.0f) timer -= 0.01f;
+		if (timer > 0.0f) timer -= 1f * Time.deltaTime;
 		else if (!stop) Destroy(this.gameObject);
 		if (reset) Destroy(this.gameObject);
 

@@ -16,12 +16,12 @@ public class FloorBehaviour : MonoBehaviour {
 		dead = false;
 		posY = 0f;
 
-		transform.FindChild ("takeOff").particleSystem.Stop();
+		transform.Find ("takeOff").GetComponent<ParticleSystem>().Stop();
 	}
 	
 	void Start() {
 		spawn();
-		transform.FindChild("floorspr").GetComponent<SpriteRenderer>().enabled = true;
+		transform.Find("floorspr").GetComponent<SpriteRenderer>().enabled = true;
 	}
 
 	void Update () {
@@ -35,11 +35,11 @@ public class FloorBehaviour : MonoBehaviour {
 
 		//Anim
 		if (started && !astarted) {
-			transform.FindChild("takeOff").particleSystem.Play();
+			transform.Find("takeOff").GetComponent<ParticleSystem>().Play();
 			astarted = true;
 		}
 		if (inAir && !dead) {
-			posY -= 0.06f;
+			posY -= 6f * Time.deltaTime;
 			if (posY < -3f) posY = -3f;
 		}
 	}

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using TMPro;
 
 public class PlayerShip : MonoBehaviour {
 	
@@ -8,8 +9,8 @@ public class PlayerShip : MonoBehaviour {
 	public GameObject EntityMeteor;
 	public GameObject Flash;
 
-	private float forceXDef = 0.006f;
-	private float forceXMax = 0.04f;
+	private float forceXDef = 6f;
+	private float forceXMax = 2f;
 	private float borderX = 2.8f;
 	private float starsTimerDef = 0.2f;
 	private float meteorsTimerDef = 1.5f;
@@ -18,7 +19,6 @@ public class PlayerShip : MonoBehaviour {
 	private bool atouch;
 	private bool touched;
 	private bool started;
-	private bool startswing;
 	private bool dead;
 	private bool deadOnce, GUIrespawnOnce, GUIrespawnOnce2;
 	private bool goRight;
@@ -39,7 +39,6 @@ public class PlayerShip : MonoBehaviour {
 		atouch = true;
 		touched = false;
 		started = false;
-		startswing = false;
 		dead = false;
 		deadOnce = false;
 		GUIrespawnOnce = false; GUIrespawnOnce2 = false;
@@ -57,19 +56,19 @@ public class PlayerShip : MonoBehaviour {
 		score = 0; bestscore = PlayerPrefs.GetInt("TOTHEMOON_highscore", 0); minusscore = 0;
 		scoreTimer = scoreTimerDef;
 
-		transform.FindChild("ship").GetComponent<SpriteRenderer>().enabled = true;
+		transform.Find("ship").GetComponent<SpriteRenderer>().enabled = true;
 		GameObject.Find("GUIdisppaear1").GetComponent<SpriteRenderer>().enabled = true;
 		GameObject.Find("GUIdisppaear2").GetComponent<SpriteRenderer>().enabled = true;
 		GameObject.Find("newscore").GetComponent<SpriteRenderer>().enabled = false;
-		GameObject.Find("touchtorespawn").animation.Play("GUIrespawnInvisible");
-		GameObject.Find("GUIscore").animation.Play("SCOREoutscreen");
+		GameObject.Find("touchtorespawn").GetComponent<Animation>().Play("GUIrespawnInvisible");
+		GameObject.Find("GUIscore").GetComponent<Animation>().Play("SCOREoutscreen");
 
-		transform.FindChild("ship").FindChild("smoke").particleSystem.Stop();
-		transform.FindChild("ship").FindChild("Splosion").particleSystem.Stop();
-		transform.FindChild("ship").FindChild("Splosion2").particleSystem.Stop();
-		GameObject.Find("ScoreSplos").particleSystem.Stop();
+		transform.Find("ship").Find("smoke").GetComponent<ParticleSystem>().Stop();
+		transform.Find("ship").Find("Splosion").GetComponent<ParticleSystem>().Stop();
+		transform.Find("ship").Find("Splosion2").GetComponent<ParticleSystem>().Stop();
+		GameObject.Find("ScoreSplos").GetComponent<ParticleSystem>().Stop();
 
-		transform.FindChild("ship").animation.Play("ShipIdle");
+		transform.Find("ship").GetComponent<Animation>().Play("ShipIdle");
 	}
 
 	void Start() {
@@ -79,14 +78,14 @@ public class PlayerShip : MonoBehaviour {
 	void Update () {
 		//Update position all frames
 		transform.position = new Vector3 (posX, posY, 0f);
-		transform.FindChild("ship").rotation = new Quaternion(0f, 0f, -(forceX*2), 1f);
-		if (started && !dead) posX += forceX;
+		transform.Find("ship").rotation = new Quaternion(0f, 0f, -(forceX*.1f), 1f);
+		if (started && !dead) posX += forceX * Time.deltaTime;
 
 		//Update Score
-		GameObject.Find ("GUITextScore1").guiText.text = score.ToString();
-		GameObject.Find ("GUITextBest1").guiText.text = bestscore.ToString();
-		GameObject.Find ("GUITextScore2").guiText.text = score.ToString();
-		GameObject.Find ("GUITextBest2").guiText.text = bestscore.ToString();
+		GameObject.Find("GUITextScore1").GetComponent<TextMeshPro>().text = score.ToString();
+		GameObject.Find("GUITextBest1").GetComponent<TextMeshPro>().text = bestscore.ToString();
+		// GameObject.Find ("GUITextScore2").guiText.text = score.ToString();
+		// GameObject.Find ("GUITextBest2").guiText.text = bestscore.ToString();
 
 		//Touch Gestion
 		touched = false;
@@ -103,32 +102,31 @@ public class PlayerShip : MonoBehaviour {
 			posY = -1.35f;
 		if (posX < -borderX)
 			dead = true;
-			//posX = -borderX;
 		else if (posX > borderX)
 			dead = true;
-			//posX = borderX;
 
 		//Lets go mayte
 		if (!started && touched) {
 			started = true;
 			respawnStuff = false;
-			transform.FindChild("ship").animation.Play("ShipAscension");
-			transform.FindChild("ship").FindChild("smoke").particleSystem.Play();
+			transform.Find("ship").GetComponent<Animation>().Play("ShipAscension");
+			transform.Find("ship").Find("smoke").GetComponent<ParticleSystem>().Play();
 			GameObject.Find("GUIdisppaear1").GetComponent<SpriteRenderer>().enabled = false;
 			GameObject.Find("GUIdisppaear2").GetComponent<SpriteRenderer>().enabled = false;
 		}
 		//MAIN GAME
 		else if (started && !dead) {
-			posY += 0.08f;
-			altitude += 0.01f;
+			if (posY < -1.35f)
+				posY += 8f * Time.deltaTime;
+			altitude += 1f * Time.deltaTime;
 
-			if (timerStart > 0.0f) timerStart-= 0.01f;
+			if (timerStart > 0.0f) timerStart -= 1f * Time.deltaTime;
 			else {
 				//Increase Decrease forceX
 				if (!goRight)
-					forceX -= forceXDef;
+					forceX -= forceXDef * Time.deltaTime;
 				else if (goRight)
-					forceX += forceXDef;
+					forceX += forceXDef * Time.deltaTime;
 				if (forceX > forceXMax)
 					forceX = forceXMax;
 				else if (forceX < -forceXMax)
@@ -148,14 +146,14 @@ public class PlayerShip : MonoBehaviour {
 				scoreTimer = scoreTimerDef;
 				addPoint(1);
 			} else {
-				scoreTimer -= 0.01f;
+				scoreTimer -= 1f * Time.deltaTime;
 			}
 		}
 
 		//Changing sky overtime
 		if (altitude > 1f && spawnCloud) {
 			spawnCloud = false;
-			GameObject.Find("GUIscore").animation.Play("SCOREingame");
+			GameObject.Find("GUIscore").GetComponent<Animation>().Play("SCOREingame");
 			createClouds();
 		}
 		if (altitude > 4f) {
@@ -169,10 +167,10 @@ public class PlayerShip : MonoBehaviour {
 		if (dead && !deadOnce) {
 			deadOnce = true;
 
-			transform.FindChild("ship").GetComponent<SpriteRenderer>().enabled = false;
-			transform.FindChild("ship").FindChild("smoke").particleSystem.Stop();
-			transform.FindChild("ship").FindChild("Splosion").particleSystem.Play();
-			transform.FindChild("ship").FindChild("Splosion2").particleSystem.Play();
+			transform.Find("ship").GetComponent<SpriteRenderer>().enabled = false;
+			transform.Find("ship").Find("smoke").GetComponent<ParticleSystem>().Stop();
+			transform.Find("ship").Find("Splosion").GetComponent<ParticleSystem>().Play();
+			transform.Find("ship").Find("Splosion2").GetComponent<ParticleSystem>().Play();
 
 			if (bestscore < score) {
 				bestscore = score;
@@ -183,26 +181,26 @@ public class PlayerShip : MonoBehaviour {
 		if (deadOnce) {
 			if (deadTimer <= 0) {
 				if (!GUIrespawnOnce) {
-					GameObject.Find("touchtorespawn").animation.Play("GUIrespawnVisible");
+					GameObject.Find("touchtorespawn").GetComponent<Animation>().Play("GUIrespawnVisible");
 
 					//HIGHSCORE ANIMATION
 					if (highscore) {
-						GameObject.Find("GUInewscore").animation.Play("SCOREnewscore");
-						GameObject.Find("ScoreSplos").particleSystem.Play();
+						GameObject.Find("GUInewscore").GetComponent<Animation>().Play("SCOREnewscore");
+						GameObject.Find("ScoreSplos").GetComponent<ParticleSystem>().Play();
 					}
 
 					GUIrespawnOnce = true;
 				}
 			} else {
-				deadTimer -= 0.01f;
+				deadTimer -= 1f * Time.deltaTime;
 			}
 			if (deadTimer2 <= 0) {
 				if (!GUIrespawnOnce2) {
-					GameObject.Find("GUIscore").animation.Play("SCOREendgame");
+					GameObject.Find("GUIscore").GetComponent<Animation>().Play("SCOREendgame");
 					GUIrespawnOnce2 = true;
 				}
 			} else {
-				deadTimer2 -= 0.01f;
+				deadTimer2 -= 1f * Time.deltaTime;
 			}
 		}
 
@@ -223,13 +221,12 @@ public class PlayerShip : MonoBehaviour {
 	}
 
 	private bool touch() {
-		if (Input.GetMouseButton(0)) {
-			return true;
-		}
-		for (int i = 0; i < Input.touchCount; i++) {
-			return true;
-		}
-		return false;
+		bool b = false;
+		if (Input.GetMouseButton(0))
+			b = true;
+		else if (Input.touchCount > 0)
+			b = true;
+		return b;
 	}
 
 	private void createClouds() {
@@ -243,7 +240,7 @@ public class PlayerShip : MonoBehaviour {
 			starsTimer = starsTimerDef;
 		}
 		else
-			starsTimer -= 0.01f;
+			starsTimer -= 1f * Time.deltaTime;
 	}
 
 	private void createMeteors() {
@@ -252,11 +249,11 @@ public class PlayerShip : MonoBehaviour {
 			meteorsTimer = meteorsTimerDef;
 		}
 		else
-			meteorsTimer -= 0.01f;
+			meteorsTimer -= 1f * Time.deltaTime;
 	}
 
 	private void addPoint(int p) {
-		GameObject.Find("GUIscore").animation.Play("SCOREaddpoint");
+		GameObject.Find("GUIscore").GetComponent<Animation>().Play("SCOREaddpoint");
 		score += p;
 		minusscore = score - 1;
 	}
