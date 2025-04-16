@@ -34,7 +34,7 @@ public class MeteorBehaviour : MonoBehaviour {
 		else if (!stop) Destroy(this.gameObject);
 		if (reset) Destroy(this.gameObject);
 		
-		if (!stop) transform.Translate (0f, Speed, 0f);
+		if (!stop) transform.Translate (0f, Speed * Time.deltaTime, 0f);
 		if (!stop) transform.Find("MeteorRot").Rotate (0f, 0f, rotation);
 	}
 }

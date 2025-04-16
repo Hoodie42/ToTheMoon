@@ -26,6 +26,6 @@ public class CloudBehaviour : MonoBehaviour {
 		else if (!stop) Destroy(this.gameObject);
 		if (reset) Destroy(this.gameObject);
 
-		if (!stop) transform.Translate (0f, speed, 0f);
+		if (!stop) transform.Translate (0f, speed * Time.deltaTime, 0f);
 	}
 }
